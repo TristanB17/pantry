@@ -129,7 +129,6 @@ class PantryTest < Minitest::Test
     @pantry.restock("Raw nuts", 20)
     @pantry.restock("Salt", 20)
 
-    binding.pry
     assert_equal ["Pickles", "Peanuts"], @pantry.what_can_i_make
   end
 

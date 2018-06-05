@@ -38,27 +38,22 @@ class Pantry
   end
 
   def what_can_i_make
-    binding.pry
     to_make = []
     @cookbook.each do |recipe|
       if check_ingredients(recipe)
         to_make << recipe.name
       end
     end
+    to_make
   end
 
   def check_ingredients(recipe)
-    binding.pry
     enough = []
     recipe.ingredients.each_pair do |key, value|
       if stock_check(key) > value
         enough << key
       end
     end
-    binding.pry
-    if recipe.ingredients.values.count == enough.count
-      true
-    end
-    binding.pry
+    recipe.ingredients.values.count == enough.count
   end
 end
