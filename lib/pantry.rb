@@ -59,6 +59,13 @@ class Pantry
     recipe.ingredients.values.count == enough.count
   end
 
+  def how_many_can_i_make
+    check = what_can_i_make.map do |recipe|
+      find_recipe_by_name(recipe)
+    end
+    @how_much
+  end
+
   def find_recipe_by_name(name)
     ingredients = []
     @cookbook.each do |recipe|
@@ -67,13 +74,7 @@ class Pantry
       end
     end
     verify_ingredients(name, ingredients)
-  end
-
-  def how_many_can_i_make
-    check = what_can_i_make.map do |recipe|
-      find_recipe_by_name(recipe)
-    end
-    @how_much
+    ingredients
   end
 
   def verify_ingredients(name, ingredients)
@@ -81,11 +82,11 @@ class Pantry
     ingredients[0].each_pair do |key, value|
       how_many << stock_check(key) / value
     end
-    final_hash(name, how_many.min)
+    number_of_recipes(name, how_many.min)
+    how_many.min
   end
 
-  def final_hash(name, how_many)
+  def number_of_recipes(name, how_many)
     @how_much[name] = how_many
-    @how_much
   end
 end

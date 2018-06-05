@@ -7,6 +7,21 @@ require 'pry'
 class PantryTest < Minitest::Test
   def setup
     @pantry = Pantry.new
+
+    r1 = Recipe.new("Cheese Pizza")
+    r1.add_ingredient("Cheese", 20)
+    r1.add_ingredient("Flour", 20)
+    @r1 = r1
+
+    r2 = Recipe.new("Pickles")
+    r2.add_ingredient("Brine", 10)
+    r2.add_ingredient("Cucumbers", 30)
+    @r2 = r2
+
+    r3 = Recipe.new("Peanuts")
+    r3.add_ingredient("Raw nuts", 10)
+    r3.add_ingredient("Salt", 10)
+    @r3 = r3
   end
 
   def test_pantry_exists
@@ -85,42 +100,18 @@ class PantryTest < Minitest::Test
   end
 
   def test_pantry_has_cookbook
-    r1 = Recipe.new("Cheese Pizza")
-    r1.add_ingredient("Cheese", 20)
-    r1.add_ingredient("Flour", 20)
-
-    r2 = Recipe.new("Pickles")
-    r2.add_ingredient("Brine", 10)
-    r2.add_ingredient("Cucumbers", 30)
-
-    r3 = Recipe.new("Peanuts")
-    r3.add_ingredient("Raw nuts", 10)
-    r3.add_ingredient("Salt", 10)
-
-    @pantry.add_to_cookbook(r1)
-    @pantry.add_to_cookbook(r2)
-    @pantry.add_to_cookbook(r3)
+    @pantry.add_to_cookbook(@r1)
+    @pantry.add_to_cookbook(@r2)
+    @pantry.add_to_cookbook(@r3)
 
     assert_equal 3, @pantry.cookbook.length
-    assert_equal r3, @pantry.cookbook[2]
+    assert_equal @r3, @pantry.cookbook[2]
   end
 
   def test_pantry_can_determine_what_can_be_made_based_on_stock
-    r1 = Recipe.new("Cheese Pizza")
-    r1.add_ingredient("Cheese", 20)
-    r1.add_ingredient("Flour", 20)
-
-    r2 = Recipe.new("Pickles")
-    r2.add_ingredient("Brine", 10)
-    r2.add_ingredient("Cucumbers", 30)
-
-    r3 = Recipe.new("Peanuts")
-    r3.add_ingredient("Raw nuts", 10)
-    r3.add_ingredient("Salt", 10)
-
-    @pantry.add_to_cookbook(r1)
-    @pantry.add_to_cookbook(r2)
-    @pantry.add_to_cookbook(r3)
+    @pantry.add_to_cookbook(@r1)
+    @pantry.add_to_cookbook(@r2)
+    @pantry.add_to_cookbook(@r3)
 
     @pantry.restock("Cheese", 10)
     @pantry.restock("Flour", 20)
@@ -132,22 +123,37 @@ class PantryTest < Minitest::Test
     assert_equal ["Pickles", "Peanuts"], @pantry.what_can_i_make
   end
 
+  def test_pantry_can_find_ingredients_via_recipe_name
+    @pantry.add_to_cookbook(@r1)
+    @pantry.add_to_cookbook(@r2)
+    @pantry.add_to_cookbook(@r3)
+
+    expected = @pantry.find_recipe_by_name("Peanuts")
+
+    assert_equal([{"Raw nuts"=>10, "Salt"=>10}], expected)
+  end
+
+  def test_verify_ingredients_determines_number_of_recipes_that_can_be_made
+    @pantry.add_to_cookbook(@r1)
+    @pantry.add_to_cookbook(@r2)
+    @pantry.add_to_cookbook(@r3)
+
+    @pantry.restock("Cheese", 10)
+    @pantry.restock("Flour", 20)
+    @pantry.restock("Brine", 40)
+    @pantry.restock("Cucumbers", 120)
+    @pantry.restock("Raw nuts", 20)
+    @pantry.restock("Salt", 20)
+
+    how_many = @pantry.verify_ingredients("Peanuts", [{"Raw nuts"=>10, "Salt"=>10}])
+
+    assert_equal 2, how_many
+  end
+
   def test_pantry_can_determine_times_recipes_can_be_made
-    r1 = Recipe.new("Cheese Pizza")
-    r1.add_ingredient("Cheese", 20)
-    r1.add_ingredient("Flour", 20)
-
-    r2 = Recipe.new("Pickles")
-    r2.add_ingredient("Brine", 10)
-    r2.add_ingredient("Cucumbers", 30)
-
-    r3 = Recipe.new("Peanuts")
-    r3.add_ingredient("Raw nuts", 10)
-    r3.add_ingredient("Salt", 10)
-
-    @pantry.add_to_cookbook(r1)
-    @pantry.add_to_cookbook(r2)
-    @pantry.add_to_cookbook(r3)
+    @pantry.add_to_cookbook(@r1)
+    @pantry.add_to_cookbook(@r2)
+    @pantry.add_to_cookbook(@r3)
 
     @pantry.restock("Cheese", 10)
     @pantry.restock("Flour", 20)
@@ -158,6 +164,4 @@ class PantryTest < Minitest::Test
 
     assert_equal({"Pickles" => 4, "Peanuts" => 2}, @pantry.how_many_can_i_make)
   end
-
-
 end
