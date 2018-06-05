@@ -17,4 +17,15 @@ class RecipeTest < Minitest::Test
     assert_equal "Cheese Pizza", recipe.name
     assert_equal({}, recipe.ingredients)
   end
+
+  def test_recipe_can_add_ingredients
+    recipe = Recipe.new("Cheese Pizza")
+
+    recipe.add_ingredient("Cheese", 20)
+    recipe.add_ingredient("Flour", 20)
+
+    assert_equal 20, recipe.ingredients["Cheese"]
+    assert_equal 20, recipe.ingredients["Flour"]
+    assert_equal({"Cheese" => 20, "Flour" => 20}, recipe.ingredients)
+  end
 end
