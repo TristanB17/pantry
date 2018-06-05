@@ -1,12 +1,14 @@
 class Pantry
   attr_reader       :stock,
                     :shopping_list,
-                    :cookbook
+                    :cookbook,
+                    :how_much
 
   def initialize
     @stock = Hash.new(0)
     @shopping_list = Hash.new(0)
     @cookbook = []
+    @how_much = {}
   end
 
   def stock_check(item)
@@ -55,5 +57,35 @@ class Pantry
       end
     end
     recipe.ingredients.values.count == enough.count
+  end
+
+  def find_recipe_by_name(name)
+    ingredients = []
+    @cookbook.each do |recipe|
+      if recipe.name == name
+        ingredients << recipe.ingredients
+      end
+    end
+    verify_ingredients(name, ingredients)
+  end
+
+  def how_many_can_i_make
+    check = what_can_i_make.map do |recipe|
+      find_recipe_by_name(recipe)
+    end
+    @how_much
+  end
+
+  def verify_ingredients(name, ingredients)
+    how_many = []
+    ingredients[0].each_pair do |key, value|
+      how_many << stock_check(key) / value
+    end
+    final_hash(name, how_many.min)
+  end
+
+  def final_hash(name, how_many)
+    @how_much[name] = how_many
+    @how_much
   end
 end
